@@ -23,13 +23,14 @@ Int10h handler comes with a macro, when enabled before compiling, that will enab
 Settings can be applied by placing UefiSeven.ini file in the directory containing the main efi file.
 Refer to the sample configuration file for available options.
 
-## Build instructions
-    git clone https://git.mananet.net/manatails/uefiseven
+## Build instructions (Tested with edk2-stable202405)
+    git clone https://github.com/Andri-K/uefiseven.git
     (Copy or symlink UefiSevenPkg and IntelFrameworkPkg to the edk2 directory)
+    (Change directory to edk2)
     source ./edksetup.sh
     make -C BaseTools/
-    ./MdeModulePkg/Application/UefiSeven/Int10hHandler.sh ; Regenerate Int10h assembly. Optional
-    build -a X64 -t GCC49 -b RELEASE -p UefiSevenPkg/UefiSevenPkg.dsc --conf=UefiSevenPkg/Conf
+    ./UefiSevenPkg/Platform/UefiSeven/Int10hHandler.sh ; Regenerate Int10h assembly. Optional
+    build -a X64 -t GCC49 -b RELEASE -p UefiSevenPkg/UefiSevenPkg.dsc
     
 ## Credits
 * Original VgaShim project
