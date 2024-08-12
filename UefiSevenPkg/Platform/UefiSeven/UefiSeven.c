@@ -1,5 +1,6 @@
 /** @file
 
+  Copyright (c) 2024, Andri Kurniawan
   Copyright (c) 2020, Seungjoo Kim
   Copyright (c) 2016, Dawid Ciecierski
 
@@ -38,6 +39,8 @@ BOOLEAN                     mLogToFile            = FALSE;
 CHAR16                      *mEfiFilePath         = NULL;
 EFI_FILE_HANDLE             mVolumeRoot           = NULL;
 EFI_FILE_HANDLE             mLogFileHandle        = NULL;
+INTN                        mResHeight            = 1024;
+INTN                        mResWidth             = 768;
 
 
 /**
@@ -635,6 +638,18 @@ ReadConfig (
   Status          = GetDecimalUintnFromDataFile (Context, "config", "logfile", &Num);
   mLogToFile      = (!EFI_ERROR (Status) && (Num == 1));
 
+  //
+  // Check the preferred resolution height
+  //
+  Status          = GetDecimalUintnFromDataFile (Context, "config", "resheight", &Num);
+  mResHeight      = Num;
+
+  //
+  // Check the preferred resolution width
+  //
+  Status          = GetDecimalUintnFromDataFile (Context, "config", "reswidth", &Num);
+  mResWidth       = Num;
+
   CloseIniFile (Context);
 
   FreePool (FileContents);
@@ -807,13 +822,13 @@ UefiMain (
   //
   // Windows 7 prefers a 1024x768 resolution.
   //
-  SwitchVideoMode (1024, 768);
+  SwitchVideoMode (mResHeight, mResWidth);
   if (mVerboseMode || mLogToFile) {
     PrintVideoInfo ();
   }
 
-  if (!MatchCurrentResolution (1024, 768)) {
-    PrintError (L"Current display does not seem to support changing to 1024x768 resolution\n");
+  if (!MatchCurrentResolution (mResHeight, mResWidth)) {
+    PrintError (L"Current display does not seem to support changing to your preferred resolution\n");
     PrintError (L"which is the minimum requirement of Windows 7.\n");
     PrintError (L"It is likely that Windows might fail to boot even with the handler installed.\n");
     PrintError (L"Press Enter to try a new 'hack' that will force the display driver to work.\n");
@@ -821,7 +836,7 @@ UefiMain (
     if (!mSkipErrors) {
       WaitForEnter (FALSE);
     }
-    ForceVideoModeHack (1024, 768);
+    ForceVideoModeHack (mResHeight, mResWidth);
   }
 
   //
