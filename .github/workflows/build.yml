@@ -1,0 +1,40 @@
+name: Build UefiSeven
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Prepare build
+          run: |
+            sudo apt update -y
+            sudo apt upgrade -y
+            sudo apt install build-essential git tofrodos nasm uuid-dev iasl python-is-python3 python3
+            git clone https://github.com/Andri-K/uefiseven.git /tmp/uefiseven
+            git clone https://github.com/tianocore/edk2.git /tmp/edk2
+            cp -r -p /tmp/uefiseven/UefiSevenPkg /tmp/edk2
+            cp -r -p /tmp/uefiseven/IntelFrameworkPkg /tmp/edk2
+            cd /tmp/edk2
+            git submodule update --init
+            make -C BaseTools/
+            chmod +x ./UefiSevenPkg/Platform/UefiSeven/Int10hHandler.sh
+        - name: Build UefiSeven
+          run: |
+            cd /tmp/edk2
+            source ./edksetup.sh
+            ./UefiSevenPkg/Platform/UefiSeven/Int10hHandler.sh
+            build -a X64 -t GCC49 -b RELEASE -p ./UefiSevenPkg/UefiSevenPkg.dsc
+        - name: Upload artifact
+          uses: actions/upload-artifact@v3
+          with:
+            name: UefiSeven.efi
+            path: /tmp/edk2/Build/UefiSevenPkg/RELEASE_GCC49/X64/UefiSevenPkg/Platform/UefiSeven/UefiSeven/OUTPUT/UefiSeven.efi
+            retention-days: 7
+            
+    
