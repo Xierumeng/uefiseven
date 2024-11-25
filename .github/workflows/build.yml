@@ -29,12 +29,10 @@ jobs:
             cd /tmp/edk2
             source ./edksetup.sh
             ./UefiSevenPkg/Platform/UefiSeven/Int10hHandler.sh
-            build -a X64 -t GCC49 -b RELEASE -p ./UefiSevenPkg/UefiSevenPkg.dsc
+            build -a X64 -t GCC49 -b RELEASE -p ./UefiSevenPkg/UefiSevenPkg.dsc --conf=UefiSevenPkg/Conf
         - name: Upload artifact
           uses: actions/upload-artifact@v3
           with:
             name: UefiSeven.efi
             path: /tmp/edk2/Build/UefiSevenPkg/RELEASE_GCC49/X64/UefiSevenPkg/Platform/UefiSeven/UefiSeven/OUTPUT/UefiSeven.efi
             retention-days: 7
-            
-    
